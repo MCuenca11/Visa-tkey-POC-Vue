@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/service-provider-torus`
 
-> TODO: description
+> @service-provider-base with DirectAuth functionality
 
 ## Usage
 

@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/share-serialization`
 
-> TODO: description
+> Import/export a share from tKey
 
 ## Usage
 

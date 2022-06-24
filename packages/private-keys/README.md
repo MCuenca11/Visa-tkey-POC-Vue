@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/private-keys`
 
-> TODO: description
+> Store extra private keys on tKey metadata
 
 ## Usage
 

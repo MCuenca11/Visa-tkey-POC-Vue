@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/storage-layer-torus`
 
-> TODO: description
+> get/set metadata for various shares
 
 ## Usage
 

@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/service-provider-base`
 
-> TODO: description
+> Accepts a private key which can be used to create one of the shares the tkey
 
 ## Usage
 

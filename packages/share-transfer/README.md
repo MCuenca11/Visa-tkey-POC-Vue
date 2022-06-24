@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/share-transfer`
 
-> TODO: description
+> Transfer share from another device
 
 ## Usage
 

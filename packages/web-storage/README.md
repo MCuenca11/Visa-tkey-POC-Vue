@@ -1,6 +1,6 @@
-# `@tkey/common-types`
+# `@tkey/web-storage`
 
-> TODO: description
+> Add/remove a share from local and file storage
 
 ## Usage
 
