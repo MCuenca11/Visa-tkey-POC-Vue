@@ -17,10 +17,12 @@ class SECP256K1Format implements IPrivateKeyFormat {
   }
 
   validatePrivateKey(privateKey: BN): boolean {
+    // use the eliptic curve to determine if its a valid private key if its not null
     return privateKey.cmp(this.ecParams.n) < 0 && !privateKey.isZero();
   }
 
   createPrivateKeyStore(privateKey?: BN): SECP256k1NStore {
+    // Set the private key to parameter if it exists, else generate one?
     const finalPrivateKey = privateKey || new BN(randombytes(64));
     return {
       id: generateID(),

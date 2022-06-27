@@ -21,6 +21,7 @@ class WebStorageModule implements IModule {
   }
 
   async setFileStorageAccess(): Promise<void> {
+    // Check if the file storage can be used and set boolean accordingly
     try {
       const result = await canAccessFileStorage();
       if (result.state === "denied") {
@@ -49,8 +50,11 @@ class WebStorageModule implements IModule {
   async initialize(): Promise<void> {}
 
   async storeDeviceShare(deviceShareStore: ShareStore, customDeviceInfo?: StringifiedType): Promise<void> {
+    // Get the metadata containing the public key
     const metadata = this.tbSDK.getMetadata();
+    // Use the metadata to get the public key and convert it to hex
     const tkeypubx = metadata.pubKey.x.toString("hex");
+    // Wait for the result of calling the helper function in /LocalStorageHelpers.ts
     await storeShareOnLocalStorage(deviceShareStore, tkeypubx);
     const shareDescription: DeviceShareDescription = {
       module: this.moduleName,
@@ -67,6 +71,7 @@ class WebStorageModule implements IModule {
     const metadata = this.tbSDK.getMetadata();
     const tkeypubx = metadata.pubKey.x.toString("hex");
     const shareStore = this.tbSDK.outputShareStore(new BN(shareIndex));
+    // Use the helper function and public key to store the share in files
     return storeShareOnFileStorage(shareStore, tkeypubx);
   }
 
@@ -74,6 +79,7 @@ class WebStorageModule implements IModule {
     const metadata = this.tbSDK.getMetadata();
     const tkeypubx = metadata.pubKey.x.toString("hex");
     let shareStore: ShareStore;
+    // Try to use the public key and helper function to get the device share
     try {
       shareStore = await getShareFromLocalStorage(tkeypubx);
     } catch (localErr) {

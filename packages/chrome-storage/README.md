@@ -1,6 +1,6 @@
 # `@tkey/chrome-storage`
 
-> TODO: description
+> Add/remove a share from chrome extension storage
 
 ## Usage
 

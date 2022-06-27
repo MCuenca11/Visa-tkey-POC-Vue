@@ -66,7 +66,6 @@ jsdeliver
 ```js
 <script src="https://cdn.jsdelivr.net/npm/<MODULE_NAME>"></script>
 ```
-
 unpkg
 
 ```js

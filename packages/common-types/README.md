@@ -1,6 +1,6 @@
 # `@tkey/common-types`
 
-> TODO: description
+> Shared TypeScript Types
 
 ## Usage
 

@@ -26,18 +26,24 @@ class PrivateKeyModule implements IModule {
   async initialize(): Promise<void> {}
 
   async setPrivateKey(privateKeyType: string, privateKey?: BN): Promise<void> {
+    // Find the correct format for the private key
     const format = this.privateKeyFormats.find((el) => el.type === privateKeyType);
+    // If the privat ekey has the wrong format throw an error
     if (!format) {
       throw PrivateKeysError.notSupported();
     }
+    // If you have a private key but it's not valid, throw an error
     if (privateKey && !format.validatePrivateKey(privateKey)) {
       throw PrivateKeysError.invalidPrivateKey(`${privateKey}`);
     }
+    // Create a key store for the private key and store it
+    // This helper returns the private key, and ID, and the type (secp256k1n)
     const privateKeyStore = format.createPrivateKeyStore(privateKey);
     return this.tbSDK._setTKeyStoreItem(this.moduleName, privateKeyStore);
   }
 
   async getPrivateKeys(): Promise<IPrivateKeyStore[]> {
+    // Retrieve the private key from the key store
     return this.tbSDK.getTKeyStore(this.moduleName) as Promise<IPrivateKeyStore[]>;
   }
 

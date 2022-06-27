@@ -3,7 +3,7 @@ module.exports = {
     https: false,
     host: "localhost",
     port: 3000, // CHANGE YOUR PORT HERE!
-    hotOnly: false,
+    // hotOnly: false,
     headers: {
       "Access-Control-Allow-Origin": "*",
     },
@@ -12,8 +12,9 @@ module.exports = {
         { from: /serviceworker\/redirect/, to: "/serviceworker/redirect.html" },
         { from: /./, to: "/index.html" },
       ],
+    hot: "only",  
     },
-    quiet: true
+    // quiet: true
   },
   // configureWebpack: (config) => {
   //   // config.devtool = 'source-map'

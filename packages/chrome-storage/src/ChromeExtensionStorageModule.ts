@@ -21,6 +21,7 @@ export default class ChromeExtensionStorageModule implements IModule {
   async initialize(): Promise<void> {}
 
   async storeDeviceShare(deviceShareStore: ShareStore, customDeviceInfo?: StringifiedType): Promise<void> {
+    // Wait for the helper function to store the share
     await this.storeShareOnChromeExtensionStorage(deviceShareStore);
     const shareDescription: DeviceShareDescription = {
       module: this.moduleName,
@@ -34,15 +35,20 @@ export default class ChromeExtensionStorageModule implements IModule {
   }
 
   async storeShareOnChromeExtensionStorage(share: ShareStore): Promise<void> {
+    // Get the metadata containing the public key
     const metadata = this.tbSDK.getMetadata();
+    // Use the metadata to get the public key and convert it to hex
     const key = metadata.pubKey.x.toString("hex"); // tbkey public
+    // Store the share using the public key
     return storage.sync.set({ [key]: JSON.stringify(share) });
   }
 
   async getStoreFromChromeExtensionStorage(): Promise<ShareStore> {
     const metadata = this.tbSDK.getMetadata();
     const key = metadata.pubKey.x.toString("hex"); // tbkey public
+    // Use the public key to retrieve the store
     const result = await storage.sync.get(key);
+    // Parse the result to get the ID
     const verifierIdObj: ShareStore = JSON.parse(result[key]);
     await this.tbSDK.inputShareStoreSafe(verifierIdObj);
     return verifierIdObj;

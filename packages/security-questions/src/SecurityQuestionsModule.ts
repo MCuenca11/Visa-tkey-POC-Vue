@@ -16,6 +16,8 @@ import { keccak256 } from "web3-utils";
 import SecurityQuestionsError from "./errors";
 import SecurityQuestionStore from "./SecurityQuestionStore";
 
+// The answer string could be the User ID returned by a successful login to Visa Guide
+// This function encodes it using keccak256
 function answerToUserInputHashBN(answerString: string): BN {
   return new BN(keccak256(answerString).slice(2), "hex");
 }
@@ -45,6 +47,7 @@ class SecurityQuestionsModule implements IModule {
     // Assumption: If sqIndex doesn't exist, it must have been explicitly deleted.
     if (oldShareStores[sqIndex] && newShareStores[sqIndex]) {
       const sqAnswer = oldShareStores[sqIndex].share.share.sub(sqStore.nonce);
+      // Use the answer to create a nonce
       let newNonce = newShareStores[sqIndex].share.share.sub(sqAnswer);
       newNonce = newNonce.umod(ecCurve.curve.n);
 
@@ -68,11 +71,15 @@ class SecurityQuestionsModule implements IModule {
   async initialize(): Promise<void> {}
 
   async generateNewShareWithSecurityQuestions(answerString: string, questions: string): Promise<GenerateNewShareResult> {
+    // Get the metadata
     const metadata = this.tbSDK.getMetadata();
+    // Get the general store from the data
     const rawSqStore = metadata.getGeneralStoreDomain(this.moduleName);
+    // If there was already a store in the metadata then throw an error?
     if (rawSqStore) throw SecurityQuestionsError.unableToReplace();
     const newSharesDetails = await this.tbSDK.generateNewShare();
     const newShareStore = newSharesDetails.newShareStores[newSharesDetails.newShareIndex.toString("hex")];
+    // Encode the answer/Visa Guide ID
     const userInputHash = answerToUserInputHashBN(answerString);
     let nonce = newShareStore.share.share.sub(userInputHash);
     nonce = nonce.umod(ecCurve.curve.n);
@@ -96,6 +103,7 @@ class SecurityQuestionsModule implements IModule {
     return newSharesDetails;
   }
 
+  // can we change the security questions?
   getSecurityQuestions(): string {
     const metadata = this.tbSDK.getMetadata();
     const sqStore = new SecurityQuestionStore(metadata.getGeneralStoreDomain(this.moduleName) as SecurityQuestionStoreArgs);
@@ -105,10 +113,13 @@ class SecurityQuestionsModule implements IModule {
   async inputShareFromSecurityQuestions(answerString: string): Promise<void> {
     const metadata = this.tbSDK.getMetadata();
     const rawSqStore = metadata.getGeneralStoreDomain(this.moduleName);
+    // If couldn't get the store from the metadata throw an error
     if (!rawSqStore) throw SecurityQuestionsError.unavailable();
 
     const sqStore = new SecurityQuestionStore(rawSqStore as SecurityQuestionStoreArgs);
+    // Encrypt the answer/visa guide ID
     const userInputHash = answerToUserInputHashBN(answerString);
+    // Add the encrypted answer/visa guide ID to the store
     let share = sqStore.nonce.add(userInputHash);
     share = share.umod(ecCurve.curve.n);
     const shareStore = new ShareStore(new Share(sqStore.shareIndex, share), sqStore.polynomialID);
@@ -149,6 +160,7 @@ class SecurityQuestionsModule implements IModule {
   }
 
   async saveAnswerOnTkeyStore(answerString: string): Promise<void> {
+    // Only save the answer if its been specified to save the answer
     if (!this.saveAnswers) return;
 
     const answerStore: ISQAnswerStore = {

@@ -1,6 +1,6 @@
-# `@tkey/chrome-storage`
+# `@tkey/security-questions`
 
-> TODO: description
+> Add/remove a security question and password as a share for tkey
 
 ## Usage
 
