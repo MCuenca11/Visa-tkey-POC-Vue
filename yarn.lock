@@ -4271,7 +4271,7 @@
   "resolved" "https://registry.npmjs.org/@vue/cli-overlay/-/cli-overlay-5.0.6.tgz"
   "version" "5.0.6"
 
-"@vue/cli-plugin-babel@^5.0.6":
+"@vue/cli-plugin-babel@~5.0.0":
   "integrity" "sha512-ruQhfhj2WM6Fe/VDQneQc/kqNp/p138SjQMfz7q/rxMTMG1kpV5B0jYWschXHXLQ6aDsFnqmBmIK+XjU3XTF3g=="
   "resolved" "https://registry.npmjs.org/@vue/cli-plugin-babel/-/cli-plugin-babel-5.0.6.tgz"
   "version" "5.0.6"
@@ -4283,7 +4283,7 @@
     "thread-loader" "^3.0.0"
     "webpack" "^5.54.0"
 
-"@vue/cli-plugin-eslint@^5.0.6":
+"@vue/cli-plugin-eslint@~5.0.0":
   "integrity" "sha512-fuc8w2IujzoenA/cdr/QYYMq2yaI1fYr0Fqom/M55B+DmW19GIuIRxYQvh0CEeCbFB2hAl3Flrazfx96/nAaQA=="
   "resolved" "https://registry.npmjs.org/@vue/cli-plugin-eslint/-/cli-plugin-eslint-5.0.6.tgz"
   "version" "5.0.6"
@@ -4306,7 +4306,7 @@
   "resolved" "https://registry.npmjs.org/@vue/cli-plugin-vuex/-/cli-plugin-vuex-5.0.6.tgz"
   "version" "5.0.6"
 
-"@vue/cli-service@^3.0.0 || ^4.0.0 || ^5.0.0-0", "@vue/cli-service@^5.0.6":
+"@vue/cli-service@^3.0.0 || ^4.0.0 || ^5.0.0-0", "@vue/cli-service@~5.0.0":
   "integrity" "sha512-XSiTCjUMk8adjvQIJXBxk3ltEBLyBme8rpqdhJrpgCgSj+8pcPPyYKs1M0petkhwLMv3mEXVPNQmXKFzpdWVrw=="
   "resolved" "https://registry.npmjs.org/@vue/cli-service/-/cli-service-5.0.6.tgz"
   "version" "5.0.6"
@@ -4428,7 +4428,7 @@
     "shortid" "^2.2.15"
     "typescript" "~4.5.5"
 
-"@vue/cli@^5.0.6":
+"@vue/cli@~5.0.0":
   "integrity" "sha512-iWvWCupn/bM+qxjYUo2vYcMu2KUARfMSqA2Zl1wC6e+BsMu2Qr2GdV6dpaGwCJrsYPfdmc2zOXTwCdPLede2vQ=="
   "resolved" "https://registry.npmjs.org/@vue/cli/-/cli-5.0.6.tgz"
   "version" "5.0.6"

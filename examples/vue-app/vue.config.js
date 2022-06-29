@@ -16,9 +16,11 @@ module.exports = {
     },
     // quiet: true
   },
-  configureWebpack: (config) => {
-    // config.devtool = 'source-map'
-  },
+
+  // configureWebpack: (config) => {
+  //   // config.devtool = 'source-map'
+  // },
+
   chainWebpack: config => {
     config.module
       .rule('sourcemap')
@@ -27,5 +29,9 @@ module.exports = {
       .use('source-map-loader')
       .loader('source-map-loader')
       .end()
-  }
+  },
+
+  transpileDependencies: [
+    'vuetify'
+  ]
 };

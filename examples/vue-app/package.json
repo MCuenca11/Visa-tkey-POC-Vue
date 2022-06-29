@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "install:local": "npm i ../../packages/*/tkey-*-v6.0.0.tgz",
     "serve": "vue-cli-service serve",
-    "lint": "vue-cli-service lint",
-    "start": "react-app-rewired start",
     "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-scripts eject"
+    "lint": "vue-cli-service lint",
+    "eject": "react-scripts eject",
+    "install:local": "npm i ../../packages/*/tkey-*-v6.0.0.tgz",
+    "start": "react-app-rewired start",
+    "test": "react-app-rewired test"
   },
   "dependencies": {
     "@tkey/chrome-storage": "file:../../packages/chrome-storage/tkey-chrome-storage-v6.0.0.tgz",
@@ -25,18 +25,23 @@
     "@tkey/share-transfer": "file:../../packages/share-transfer/tkey-share-transfer-v6.0.0.tgz",
     "@tkey/storage-layer-torus": "file:../../packages/storage-layer-torus/tkey-storage-layer-torus-v6.0.0.tgz",
     "@tkey/web-storage": "file:../../packages/web-storage/tkey-web-storage-v6.0.0.tgz",
-    "core-js": "^3.7.0",
-    "vue": "^2.6.12"
+    "core-js": "^3.8.3",
+    "vue": "^2.6.12",
+    "vuetify": "^2.6.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.4",
+    "@vue/cli-plugin-babel": "^5.0.6",
     "@vue/cli-plugin-eslint": "~4.5.4",
     "@vue/cli-service": "~4.5.4",
     "babel-eslint": "^10.1.0",
     "eslint": "^7.7.0",
     "eslint-plugin-vue": "^6.2.2",
+    "sass": "~1.32.0",
+    "sass-loader": "^10.0.0",
     "source-map-loader": "^1.0.2",
-    "vue-template-compiler": "^2.6.12"
+    "vue-cli-plugin-vuetify": "~2.5.1",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.7.0"
   },
   "eslintConfig": {
     "root": true,
