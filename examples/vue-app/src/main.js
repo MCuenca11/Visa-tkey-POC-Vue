@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-import App from "./App2.vue";
+import App from "./App1.vue";
 
 Vue.config.productionTip = false;
 

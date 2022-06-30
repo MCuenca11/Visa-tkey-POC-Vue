@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <p class="font-italic">Note: This is a testing application. Please open console for debugging.</p>
+    <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more info.</p>
     <div>
-      <span :style="{ marginRight: '20px' }">verifier:</span>
+      <span :style="{ marginRight: '20px' }">To Begin Select a Social Verifier Then Press Login:</span>
       <select v-model="selectedVerifier">
         <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
       </select>
@@ -17,26 +17,26 @@
     </div>
 
     <div :style="{ marginTop: '20px' }">
-      <h4>Login and resets</h4>
-      <button @click="triggerLogin">Login with Torus and initialize tkey</button>
-      <button @click="_initializeNewKey">Create new tkey</button>
+      <h4>Login and Resets</h4>
+      <button @click="triggerLogin">Login With Torus and Initialize tkey</button>
+      <button @click="_initializeNewKey">Create New tkey</button>
       <button @click="reconstructKey">Reconstuct tkey</button>
-      <button @click="getKeyDetails">Get tkey details</button>
-      <button @click="getSDKObject">Get tkey object</button>
+      <button @click="getKeyDetails">Get tkey Details</button>
+      <button @click="getSDKObject">Get tkey Object</button>
       <br />
-      <h4>Add and removing shares</h4>
+      <h4>Adding/Removing Shares</h4>
       <div :style="{ margin: '20px' }">
-        <input v-model="answer" placeholder="enter your answer" />
+        <input v-model="answer" placeholder="Enter Visa Guide ID" />
       </div>
-      <button @click="generateNewShareWithSecurityQuestions">Create a new password</button>
-      <button @click="inputShareFromSecurityQuestions">input password share (for reconstructKey)</button>
-      <!-- <button @click="generateNewShare">generateNewShare</button> -->
+      <button @click="generateNewShareWithSecurityQuestions">Initialize a New Visa Guide ID</button>
+      <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Get the Share</button>
+      <button @click="generateNewShare">Generate New Share</button>
       <br />
       <h4>Share Transer</h4>
-      <button @click="checkShareRequests">Check share requests</button>
+      <button @click="checkShareRequests">Check Share Requests</button>
       <button @click="requestShare">Request Share</button>
-      <button @click="approveShareRequest">Approve request</button>
-      <button @click="resetShareRequests">Reset share request store</button>
+      <button @click="approveShareRequest">Approve Request</button>
+      <button @click="resetShareRequests">Reset Share Request Store</button>
     </div>
     <div id="console">
       <p></p>
@@ -158,7 +158,7 @@ export default {
       console.log(this.tbsdk);
     },
     passwordValidation(v) {
-      return v.length >= 10;
+      return v.length >= 5;
       // return /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\dA-Za-z]).\S{10,}$/.test(v)
     },
     async initializeAndReconstruct() {
@@ -195,11 +195,12 @@ export default {
               await this.tbsdk.modules.webStorage.inputShareFromWebStorage();
               requiredShares--;
             } catch (err) {
-              console.log("Couldn't find on device share");
+              console.log("Couldn't Find The Device Share");
             }
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
-            throw "Password required";
+            console.log("Password Required");
+            throw "Password Required";
           }
 
           if (tempSD.length === 0 && requiredShares > 0) {
@@ -264,8 +265,8 @@ export default {
     async generateNewShareWithSecurityQuestions() {
       try {
         if (!this.passwordValidation(this.answer)) {
-          this.console("Minimum length 10 characters");
-          throw "Minimum length 10 characters";
+          this.console("Minimum Length 5 Characters");
+          throw "Minimum length 5 characters";
         }
         await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "whats your password?");
         this.console("succeeded generateNewShareWithSecurityQuestions");
@@ -336,9 +337,10 @@ export default {
           throw "Minimum length 10 characters";
         }
         await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "whats your password?");
-        this.console("succeded inputShareFromSecurityQuestions");
+        this.console("Correct ID for the Visa Guide Share!");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
+        this.console("Incorrect ID for the Visa Guide Share");
         console.error(error, "caught");
       }
     },
