@@ -2,7 +2,7 @@
   <div id="app">
     <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more info.</p>
     <div>
-      <span :style="{ marginRight: '20px' }">To Begin Create New tKey Then Login With Social Provider:</span>
+      <span :style="{ marginRight: '20px' }">To Begin Select Social Provider and Create New tkey to Login (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
       <select v-model="selectedVerifier">
         <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
       </select>
@@ -18,8 +18,8 @@
 
     <div :style="{ marginTop: '20px' }">
       <h4>Login and Resets</h4>
-      <button @click="_initializeNewKey">Create New tkey</button>
-      <button @click="triggerLogin">Login for Provider Share (Gets Device Share Automatically)</button>
+      <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
+      <button @click="triggerLogin">Login for Provider/Device Shares (If tkey Has Already Been Created)</button>
       <button @click="reconstructKey">Reconstuct tkey</button>
       <button @click="getKeyDetails">Get tkey Details</button>
       <button @click="getSDKObject">Get tkey Object</button>
@@ -261,7 +261,7 @@ export default {
 
         await this.initializeAndReconstruct();
       } catch (error) {
-        console.error(error, "caught");
+        console.error(error, "triggerLogin() Error");
       }
     },
     async generateNewShareWithSecurityQuestions() {
@@ -270,11 +270,12 @@ export default {
           this.console("Minimum Length 5 Characters");
           throw "Minimum length 5 characters";
         }
+        // TODO: Change this.answer to be the Visa Guide ID!
         await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "whats your password?");
         this.console("Successfully Initialized Visa Guide ID");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
-        console.error(error, "caught");
+        console.error(error, "genNewShareWSecQs() Error");
       }
     },
     async checkShareRequests() {
@@ -329,7 +330,7 @@ export default {
         this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
         console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
       } catch (error) {
-        console.error(error, "caught");
+        console.error(error, "reconstructKey() Error");
       }
     },
     async inputShareFromSecurityQuestions() {
@@ -338,12 +339,12 @@ export default {
           this.console("Minimum length 5 characters");
           throw "Minimum length 5 characters";
         }
-        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "whats your password?");
+        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
         this.console("Correct ID for the Visa Guide Share!");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
         this.console("Incorrect ID for the Visa Guide Share");
-        console.error(error, "caught");
+        console.error(error, "inputShareSeqQs() Error");
       }
     },
     async generateNewShare() {
@@ -352,7 +353,7 @@ export default {
         console.log(res);
         this.console(res);
       } catch (error) {
-        console.error(error, "caught");
+        console.error(error, "GenerateNewShare() Error");
       }
     },
     async _initializeNewKey() {
@@ -364,7 +365,7 @@ export default {
         this.console(res);
         console.log("New tkey Info:", res);
       } catch (error) {
-        console.error(error, "caught");
+        console.error(error, "initializeNewKey() Error");
       }
     },
     async initTkey() {
