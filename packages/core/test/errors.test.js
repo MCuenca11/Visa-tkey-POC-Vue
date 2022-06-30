@@ -9,7 +9,7 @@ describe("Errors", function () {
         throw CoreError.metadataUndefined();
       },
       function (err) {
-        if (err instanceof CoreError && err.code === 1101 && err.message === "metadata not found, SDK likely not initialized ") return true;
+        if (err instanceof CoreError && err.code === 1101 && err.message === "metadata not found, SDK likely not initialized. Try creating tKey to get metadata") return true;
       },
       "metadata error thrown"
     );
@@ -20,7 +20,7 @@ describe("Errors", function () {
         throw CoreError.fromCode(1101);
       },
       function (err) {
-        if (err instanceof CoreError && err.code === 1101 && err.message === "metadata not found, SDK likely not initialized ") return true;
+        if (err instanceof CoreError && err.code === 1101 && err.message === "metadata not found, SDK likely not initialized. Try creating tKey to get metadata") return true;
       },
       "metadata error thrown"
     );

@@ -27,7 +27,7 @@ class CoreError extends TkeyError {
     1002: "Wrong share index",
     1003: "Unable to updateSDK",
     // metadata
-    1101: "metadata not found, SDK likely not initialized",
+    1101: "metadata not found, SDK likely not initialized. Try creating tKey to get metadata",
     1102: "getMetadata errored",
     1103: "setMetadata errored",
     1104: "previouslyFetchedCloudMetadata provided in initialization is outdated",

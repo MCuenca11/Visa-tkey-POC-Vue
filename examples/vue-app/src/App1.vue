@@ -19,7 +19,7 @@
     <div :style="{ marginTop: '20px' }">
       <h4>Login and Resets</h4>
       <button @click="_initializeNewKey">Create New tkey</button>
-      <button @click="triggerLogin">Login to Get Social Provider Share</button>
+      <button @click="triggerLogin">Login for Provider Share (Gets Device Share Automatically)</button>
       <button @click="reconstructKey">Reconstuct tkey</button>
       <button @click="getKeyDetails">Get tkey Details</button>
       <button @click="getSDKObject">Get tkey Object</button>
@@ -335,8 +335,8 @@ export default {
     async inputShareFromSecurityQuestions() {
       try {
         if (!this.passwordValidation(this.answer)) {
-          this.console("Minimum length 10 characters");
-          throw "Minimum length 10 characters";
+          this.console("Minimum length 5 characters");
+          throw "Minimum length 5 characters";
         }
         await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "whats your password?");
         this.console("Correct ID for the Visa Guide Share!");
