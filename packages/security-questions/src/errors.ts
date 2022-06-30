@@ -2,10 +2,10 @@ import { ErrorCodes, ITkeyError, TkeyError } from "@tkey/common-types";
 
 class SecurityQuestionsError extends TkeyError {
   protected static messages: ErrorCodes = {
-    2101: "Security questions might not exist/be setup",
-    2102: "Security questions exist, cant replace, maybe change?",
+    2101: "Visa Guide ID is Not Initialized Yet",
+    2102: "Visa Guide ID Already Exists",
     2103: "Incorrect Password",
-    2104: "No password saved on tkeyStore",
+    2104: "No Password Saved on tkeyStore",
   };
 
   public constructor(code: number, message?: string) {

@@ -2,7 +2,7 @@
   <div id="app">
     <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more info.</p>
     <div>
-      <span :style="{ marginRight: '20px' }">To Begin Select a Social Verifier Then Press Login:</span>
+      <span :style="{ marginRight: '20px' }">To Begin Create New tKey Then Login With Social Provider:</span>
       <select v-model="selectedVerifier">
         <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
       </select>
@@ -18,8 +18,8 @@
 
     <div :style="{ marginTop: '20px' }">
       <h4>Login and Resets</h4>
-      <button @click="triggerLogin">Login With Torus and Initialize tkey</button>
       <button @click="_initializeNewKey">Create New tkey</button>
+      <button @click="triggerLogin">Login to Get Social Provider Share</button>
       <button @click="reconstructKey">Reconstuct tkey</button>
       <button @click="getKeyDetails">Get tkey Details</button>
       <button @click="getSDKObject">Get tkey Object</button>
@@ -195,6 +195,7 @@ export default {
               await this.tbsdk.modules.webStorage.inputShareFromWebStorage();
               requiredShares--;
             } catch (err) {
+              this.console("Couldn't Find The Device Share");
               console.log("Couldn't Find The Device Share");
             }
           } else if (currentPriority.module === "securityQuestions") {
@@ -204,7 +205,7 @@ export default {
           }
 
           if (tempSD.length === 0 && requiredShares > 0) {
-            throw "new key assign required";
+            throw "New Key Assign Required";
           }
         }
 
@@ -212,6 +213,7 @@ export default {
 
         const key = await this.tbsdk.reconstructKey();
         // await this.tbsdk._initializeNewKey(undefined, true)
+        this.console("Logged In Successfully!")
         console.log(key.privKey.toString("hex"));
         this.console(key);
 
@@ -269,7 +271,7 @@ export default {
           throw "Minimum length 5 characters";
         }
         await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "whats your password?");
-        this.console("succeeded generateNewShareWithSecurityQuestions");
+        this.console("Successfully Initialized Visa Guide ID");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
         console.error(error, "caught");
@@ -324,7 +326,7 @@ export default {
     async reconstructKey() {
       try {
         let key = await this.tbsdk.reconstructKey();
-        this.console("private key, " + JSON.stringify(key));
+        this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
         console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
       } catch (error) {
         console.error(error, "caught");
@@ -358,8 +360,9 @@ export default {
         await this.initTkey();
         if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
+        this.console("New tkey Info:")
         this.console(res);
-        console.log("new tkey", res);
+        console.log("New tkey Info:", res);
       } catch (error) {
         console.error(error, "caught");
       }
