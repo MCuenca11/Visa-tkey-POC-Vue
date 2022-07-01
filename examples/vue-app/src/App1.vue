@@ -2,7 +2,7 @@
   <div id="app">
     <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more detailed info.</p>
     <div>
-      <span :style="{ marginRight: '20px' }">To Begin Select Social Provider and Create New tkey to Login (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
+      <span :style="{ marginRight: '20px' }">To Begin Select Social Provider and Create New tkey to Login. (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
       <select v-model="selectedVerifier">
         <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
       </select>
