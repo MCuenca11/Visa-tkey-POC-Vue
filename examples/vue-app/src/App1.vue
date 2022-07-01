@@ -286,15 +286,15 @@ export default {
         }
         // Added this
         await this.initTkey();
-        if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
-        this.console("Successfully Initialized Visa Guide ID Share + Device Share! New tkey Info: " + JSON.stringify(res));
         // End of my modification
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
         await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
         // this.console("Successfully Initialized Share With Visa Guide ID!");
+        console.log("New tkey Info:", res);
+        this.console("Successfully Initialized Visa Guide ID Share + Device Share! New tkey Info: " + JSON.stringify(res));
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
         this.console("Failed to Initialize Share With Visa Guide ID");
