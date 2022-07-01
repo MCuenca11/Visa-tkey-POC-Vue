@@ -17,26 +17,31 @@
     </div>
 
     <div :style="{ marginTop: '20px' }">
-      <h4>Login and Resets</h4>
-      <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
-      <button @click="triggerLogin">Login for Provider/Device Shares (If tkey Has Already Been Created)</button>
-      <button @click="reconstructKey">Reconstuct tkey</button>
-      <button @click="getKeyDetails">Get tkey Details</button>
-      <button @click="getSDKObject">Get tkey Object</button>
+      <h4>Social Provider Logins and Details</h4>
+        <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
+        <button @click="triggerLogin">Login for Provider/Device Shares (If tkey Has Already Been Created)</button>
+        <button @click="reconstructKey">Reconstuct tkey</button>
+        <button @click="getKeyDetails">Get tkey Details</button>
+        <button @click="getSDKObject">Get tkey Object</button>
       <br />
-      <h4>Adding/Removing Shares</h4>
+      <h4>Visa Guide Logins</h4>
       <div :style="{ margin: '20px' }">
         <input v-model="answer" placeholder="Enter Visa Guide ID" />
       </div>
-      <button @click="generateNewShareWithSecurityQuestions">Initialize a New Visa Guide ID</button>
-      <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Get the Share</button>
-      <button @click="generateNewShare">Generate New Share</button>
+        <button @click="generateNewShareWithSecurityQuestions">Initialize a New Visa Guide ID</button>
+        <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Get the Guide + Device Shares</button>
+        <button @click="generateNewShare">Generate New Share</button>
       <br />
-      <h4>Share Transer</h4>
-      <button @click="checkShareRequests">Check Share Requests</button>
-      <button @click="requestShare">Request Share</button>
-      <button @click="approveShareRequest">Approve Request</button>
-      <button @click="resetShareRequests">Reset Share Request Store</button>
+      <h4>Reconstruct tkey/Get tkey Info</h4>
+        <button @click="reconstructKey">Reconstuct tkey</button>
+        <button @click="getKeyDetails">Get tkey Details</button>
+        <button @click="getSDKObject">Get tkey Object</button>
+      <br />
+      <h4>Share Transer (Not sure if needed)</h4>
+        <button @click="checkShareRequests">Check Share Requests</button>
+        <button @click="requestShare">Request Share</button>
+        <button @click="approveShareRequest">Approve Request</button>
+        <button @click="resetShareRequests">Reset Share Request Store</button>
     </div>
     <div id="console">
       <p></p>
@@ -203,9 +208,9 @@ export default {
             }
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
-            console.log("Password Required");
-            throw "Password Required";
-          }
+            console.log("Logging in with Visa Guide...");
+            // throw "Logging in with Visa Guide...";
+          } 
 
           if (tempSD.length === 0 && requiredShares > 0) {
             throw "New Key Assign Required";
@@ -283,7 +288,8 @@ export default {
         await this.initTkey();
         if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
-        this.console("Successfully Initialized Share With Visa Guide ID! New tkey Info: " + JSON.stringify(res));
+        this.console("Successfully Initialized Visa Guide ID Share + Device Share! New tkey Info: " + JSON.stringify(res));
+        // End of my modification
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
@@ -352,15 +358,24 @@ export default {
     },
     async inputShareFromSecurityQuestions() {
       try {
+        // Added this
+        await this.initTkey();
+        console.log("step 1");
+        // End
         if (!this.passwordValidation(this.answer)) {
           this.console("Minimum length 5 characters");
           throw "Minimum length 5 characters";
         }
+        console.log("step 2");
+        // Added this
+        await this.initializeAndReconstruct();
+        console.log("step 3");
         await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+        console.log("step 4");
         this.console("Correct ID for the Visa Guide Share!");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
-        this.console("Incorrect ID for the Visa Guide Share");
+        this.console("Incorrect ID for the Visa Guide share or metadata not set");
         console.error(error, "inputShareSeqQs() Error");
       }
     },
