@@ -103,7 +103,6 @@ class SecurityQuestionsModule implements IModule {
     return newSharesDetails;
   }
 
-  // can we change the security questions?
   getSecurityQuestions(): string {
     const metadata = this.tbSDK.getMetadata();
     const sqStore = new SecurityQuestionStore(metadata.getGeneralStoreDomain(this.moduleName) as SecurityQuestionStoreArgs);

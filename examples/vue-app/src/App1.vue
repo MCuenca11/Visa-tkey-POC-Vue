@@ -142,9 +142,11 @@ export default {
       };
     }
   },
+  //##############################################################
   methods: {
     getKeyDetails() {
       console.log(this.tbsdk.getKeyDetails());
+      this.console("Key Details: " + JSON.stringify(this.tbsdk.getKeyDetails()));
       return this.tbsdk.getKeyDetails();
     },
     getLatestPolynomialDetails() {
@@ -155,6 +157,7 @@ export default {
       console.log(latestPolynomial, latestPolynomialId, indexes);
     },
     getSDKObject() {
+      this.console("Key Object: " + JSON.stringify(this.tbsdk));
       console.log(this.tbsdk);
     },
     passwordValidation(v) {
@@ -176,7 +179,7 @@ export default {
 
         // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
         // Sort the share descriptions with priority order
-        let priorityOrder = ["webStorage", "securityQuestions"];
+        let priorityOrder = ["securityQuestions", "webStorage"];
 
         let tempSD = Object.values(shareDesc)
           .flatMap(x => x)
@@ -213,7 +216,8 @@ export default {
 
         const key = await this.tbsdk.reconstructKey();
         // await this.tbsdk._initializeNewKey(undefined, true)
-        this.console("Logged In Successfully!")
+        this.console("Logged In Successfully!");
+        
         console.log(key.privKey.toString("hex"));
         this.console(key);
 
@@ -227,7 +231,9 @@ export default {
         await this.initTkey();
 
         // console.log(this.tbsdk, this.tbsdk.serviceProvider, this.tbsdk.serviceProvider.__proto__ )
+        //If the service providers aren't set up then return
         if (!this.tbsdk.serviceProvider) return;
+        // if it's not mocked then use the social providers
         if (!this.mocked) {
           const jwtParams = this.loginToConnectionMap[this.selectedVerifier] || {};
           const { typeOfLogin, clientId, verifier } = this.verifierMap[this.selectedVerifier];
@@ -260,21 +266,32 @@ export default {
         }
 
         await this.initializeAndReconstruct();
+        this.console("Successfully Logged In!");
       } catch (error) {
+        this.console("Login Was Not Successful");
         console.error(error, "triggerLogin() Error");
       }
     },
     async generateNewShareWithSecurityQuestions() {
       try {
+        // TODO: Change this.answer to be the Visa Guide ID!
         if (!this.passwordValidation(this.answer)) {
           this.console("Minimum Length 5 Characters");
           throw "Minimum length 5 characters";
         }
+        // Added this
+        await this.initTkey();
+        if (!this.mocked) await this.triggerLogin();
+        const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
+        this.console("Successfully Initialized Share With Visa Guide ID! New tkey Info: " + JSON.stringify(res));
+
         // TODO: Change this.answer to be the Visa Guide ID!
-        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "whats your password?");
-        this.console("Successfully Initialized Visa Guide ID");
+        // This calls the function in the Security Questions Module
+        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
+        // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
+        this.console("Failed to Initialize Share With Visa Guide ID");
         console.error(error, "genNewShareWSecQs() Error");
       }
     },
@@ -350,8 +367,16 @@ export default {
     async generateNewShare() {
       try {
         const res = await this.tbsdk.generateNewShare();
+        // ######## Trying to increase the threshold #########
+        const pubPoly = this.metadata.getLatestPublicPolynomial();
+        const prevPolyID = pubPoly.getPolynomialID();
+        const existingShareIndexes = this.metadata.getShareIndexesForPolynomial(prevPolyID);
+
+        this.console(existingShareIndexes);
+
+        // #### Continue #######
         console.log(res);
-        this.console(res);
+        this.console("New Share Info: " + JSON.stringify(res));
       } catch (error) {
         console.error(error, "GenerateNewShare() Error");
       }
@@ -361,8 +386,7 @@ export default {
         await this.initTkey();
         if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
-        this.console("New tkey Info:")
-        this.console(res);
+        this.console("New tkey Info: " + JSON.stringify(res));
         console.log("New tkey Info:", res);
       } catch (error) {
         console.error(error, "initializeNewKey() Error");
@@ -400,6 +424,7 @@ export default {
       document.querySelector("#console>p").innerHTML = typeof text === "object" ? JSON.stringify(text) : text;
     }
   },
+  //##############################################################
   async mounted() {
     try {
       await this.initTkey();
