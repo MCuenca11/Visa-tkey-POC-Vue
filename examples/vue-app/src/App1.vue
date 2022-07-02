@@ -30,7 +30,7 @@
         <button @click="generateNewShare">Generate New Share</button>
       <br />
       <h4>Reconstruct tkey/Get tkey Info</h4>
-        <button @click="reconstructKey">Reconstuct tkey</button>
+        <button @click="reconstructKey">Reconstuct tkey (Don't Need Anymore?)</button>
         <button @click="getKeyDetails">Get tkey Details</button>
         <button @click="getSDKObject">Get tkey Object</button>
       <br />
@@ -281,8 +281,8 @@ export default {
       try {
         // TODO: Change this.answer to be the Visa Guide ID!
         if (!this.passwordValidation(this.answer)) {
-          this.console("Minimum Length 5 Characters");
-          throw "Minimum length 5 characters";
+          this.console("Visa Guide ID Can't Be Less Than 5 Characters");
+          throw "Visa Guide ID Can't Be Less Than 5 Characters";
         }
         // Added this
         await this.initTkey();
@@ -350,7 +350,7 @@ export default {
     },
     async reconstructKey() {
       try {
-        if (this.tbsdk.requiredShares != 0) {
+        if (this.tbsdk.requiredShares > 1) {
           this.console("Not Enough Shares to Reconstruct the Key");
           throw "Not Enough Shares to Reconstruct the Key";
         } else {
@@ -448,7 +448,8 @@ export default {
 
         console.log(this.tbsdk);
         console.log(initializedDetails);
-        if (actualRequiredShares != 0) {
+        if (actualRequiredShares > 0) {
+          this.console('Not Enough Shares (Wrong Visa Guide ID or No Device Share Found');
           throw "Not Enough Shares";
         } else {
           let key = await this.tbsdk.reconstructKey();
