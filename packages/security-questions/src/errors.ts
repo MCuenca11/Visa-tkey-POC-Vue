@@ -4,8 +4,8 @@ class SecurityQuestionsError extends TkeyError {
   protected static messages: ErrorCodes = {
     2101: "Visa Guide ID is Not Initialized Yet",
     2102: "Visa Guide ID Already Exists",
-    2103: "Incorrect Password",
-    2104: "No Password Saved on tkeyStore",
+    2103: "Incorrect Visa Guide ID",
+    2104: "No Visa Guide ID Saved on tkeyStore",
   };
 
   public constructor(code: number, message?: string) {

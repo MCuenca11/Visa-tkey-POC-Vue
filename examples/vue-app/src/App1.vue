@@ -20,15 +20,12 @@
       <h4>Social Provider Logins and Details</h4>
         <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
         <button @click="triggerLogin">Login for Provider/Device Shares (If tkey Has Already Been Created)</button>
-        <button @click="reconstructKey">Reconstuct tkey</button>
-        <button @click="getKeyDetails">Get tkey Details</button>
-        <button @click="getSDKObject">Get tkey Object</button>
       <br />
       <h4>Visa Guide Logins</h4>
       <div :style="{ margin: '20px' }">
         <input v-model="answer" placeholder="Enter Visa Guide ID" />
       </div>
-        <button @click="generateNewShareWithSecurityQuestions">Initialize a New Visa Guide ID</button>
+        <button @click="generateNewShareWithSecurityQuestions">Initialize New tkey Using 3 Shares</button>
         <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Get the Guide + Device Shares</button>
         <button @click="generateNewShare">Generate New Share</button>
       <br />
@@ -208,12 +205,13 @@ export default {
             }
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
-            console.log("Logging in with Visa Guide...");
+            console.log("Logging in with Visa Guide ID...");
+                    await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
             // throw "Logging in with Visa Guide...";
           } 
 
           if (tempSD.length === 0 && requiredShares > 0) {
-            throw "New Key Assign Required";
+            throw "URGENT: Need to Reassign Lost Key!";
           }
         }
 
@@ -222,7 +220,7 @@ export default {
         const key = await this.tbsdk.reconstructKey();
         // await this.tbsdk._initializeNewKey(undefined, true)
         this.console("Logged In Successfully!");
-        
+        console.log(initializedDetails);
         console.log(key.privKey.toString("hex"));
         this.console(key);
 
@@ -291,10 +289,10 @@ export default {
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
-        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
+        // await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
         // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log("New tkey Info:", res);
-        this.console("Successfully Initialized Visa Guide ID Share + Device Share! New tkey Info: " + JSON.stringify(res));
+        this.console("Successfully Initialized Visa Guide ID Share + Device Share + Provider Share! New tkey Info: " + JSON.stringify(res));
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
         this.console("Failed to Initialize Share With Visa Guide ID");
@@ -369,9 +367,12 @@ export default {
         console.log("step 2");
         // Added this
         await this.initializeAndReconstruct();
+        console.log(this.tbsdk.getKeyDetails());
         console.log("step 3");
-        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+        console.log(this.tbsdk.getKeyDetails());
+        // await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
         console.log("step 4");
+        console.log(this.tbsdk.getKeyDetails());
         this.console("Correct ID for the Visa Guide Share!");
         console.log(this.tbsdk.getKeyDetails());
       } catch (error) {
@@ -382,14 +383,14 @@ export default {
     async generateNewShare() {
       try {
         const res = await this.tbsdk.generateNewShare();
-        // ######## Trying to increase the threshold #########
-        const pubPoly = this.metadata.getLatestPublicPolynomial();
-        const prevPolyID = pubPoly.getPolynomialID();
-        const existingShareIndexes = this.metadata.getShareIndexesForPolynomial(prevPolyID);
+        // // ######## Trying to increase the threshold #########
+        // const pubPoly = this.metadata.getLatestPublicPolynomial();
+        // const prevPolyID = pubPoly.getPolynomialID();
+        // const existingShareIndexes = this.metadata.getShareIndexesForPolynomial(prevPolyID);
 
-        this.console(existingShareIndexes);
+        // this.console(existingShareIndexes);
 
-        // #### Continue #######
+        // // #### Continue #######
         console.log(res);
         this.console("New Share Info: " + JSON.stringify(res));
       } catch (error) {

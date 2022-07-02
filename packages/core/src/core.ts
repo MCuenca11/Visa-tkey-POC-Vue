@@ -392,7 +392,7 @@ class ThresholdKey implements ITKey {
     });
 
     if (sharesLeft > 0) {
-      throw CoreError.unableToReconstruct(` require ${requiredThreshold} but have ${requiredThreshold - sharesLeft}`);
+      throw CoreError.unableToReconstruct(`require ${requiredThreshold} shares but only have ${requiredThreshold - sharesLeft} shares`);
     }
 
     const polyShares = Object.keys(this.shares[pubPolyID]);
