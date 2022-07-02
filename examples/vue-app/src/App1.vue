@@ -178,6 +178,7 @@ export default {
             return JSON.parse(jl);
           });
         });
+        console.log(shareDesc);
 
         // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
         // Sort the share descriptions with priority order
@@ -198,6 +199,7 @@ export default {
           if (currentPriority.module === "webStorage") {
             try {
               await this.tbsdk.modules.webStorage.inputShareFromWebStorage();
+              console.log("Getting Device Storage Share...");
               requiredShares--;
             } catch (err) {
               this.console("Couldn't Find The Device Share");
@@ -206,6 +208,7 @@ export default {
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
             console.log("Logging in with Visa Guide ID...");
+            // await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
             // throw "Logging in with Visa Guide...";
           } 
 
@@ -218,7 +221,7 @@ export default {
 
         // const key = await this.tbsdk.reconstructKey();
         // await this.tbsdk._initializeNewKey(undefined, true)
-        this.console("Logged In Successfully!");
+        console.log("Logged In Successfully!");
         console.log(initializedDetails);
         // console.log(key.privKey.toString("hex"));
         // this.console(key);
@@ -347,39 +350,117 @@ export default {
     },
     async reconstructKey() {
       try {
-        let key = await this.tbsdk.reconstructKey();
-        this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
-        console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
+        if (this.tbsdk.requiredShares != 0) {
+          this.console("Not Enough Shares to Reconstruct the Key");
+          throw "Not Enough Shares to Reconstruct the Key";
+        } else {
+          let key = await this.tbsdk.reconstructKey();
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
+        }
       } catch (error) {
         console.error(error, "reconstructKey() Error");
       }
     },
+    // async inputShareFromSecurityQuestions() {
+    //   try {
+    //     // Added this
+    //     await this.initTkey();
+    //     console.log("step 1");
+    //     // End
+    //     if (!this.passwordValidation(this.answer)) {
+    //       this.console("Minimum length 5 characters");
+    //       throw "Minimum length 5 characters";
+    //     }
+    //     console.log("step 2");
+    //     // Added this
+    //     await this.initializeAndReconstruct();
+    //     console.log("Back to Input Share...");
+    //     console.log(this.tbsdk.getKeyDetails());
+    //     console.log("step 3");
+    //     console.log(this.tbsdk.getKeyDetails());
+    //     await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+    //     console.log("step 4");
+    //     console.log(this.tbsdk.getKeyDetails());
+    //     const key = await this.tbsdk.reconstructKey();
+    //     // this.console("Correct ID for the Visa Guide Share!");
+    //     this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+    //   } catch (error) {
+    //     this.console("Incorrect ID for the Visa Guide share or metadata not set");
+    //     console.error(error, "inputShareSeqQs() Error");
+    //   }
+    // },
     async inputShareFromSecurityQuestions() {
-      try {
-        // Added this
-        await this.initTkey();
-        console.log("step 1");
-        // End
-        if (!this.passwordValidation(this.answer)) {
-          this.console("Minimum length 5 characters");
-          throw "Minimum length 5 characters";
+       try {
+        const initializedDetails = await this.tbsdk.initialize();
+        console.log(initializedDetails);
+        // console.log(initializedDetails.shareDescriptions[2].length)
+
+        let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
+        Object.keys(shareDesc).map(el => {
+          shareDesc[el] = shareDesc[el].map(jl => {
+            return JSON.parse(jl);
+          });
+        });
+        console.log(shareDesc);
+
+        // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
+        // Sort the share descriptions with priority order
+        let priorityOrder = ["securityQuestions", "webStorage"];
+
+        let tempSD = Object.values(shareDesc)
+          .flatMap(x => x)
+          .sort((a, b) => {
+            return priorityOrder.indexOf(a.module) - priorityOrder.indexOf(b.module);
+          });
+
+        if (tempSD.length === 0 && requiredShares > 0) {
+          throw new Error("No share descriptions available. New key assign might be required or contact support");
         }
-        console.log("step 2");
-        // Added this
-        await this.initializeAndReconstruct();
-        console.log(this.tbsdk.getKeyDetails());
-        console.log("step 3");
-        console.log(this.tbsdk.getKeyDetails());
-        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
-        console.log("step 4");
-        console.log(this.tbsdk.getKeyDetails());
-        console.log(this.tbsdk.getKeyDetails());
-        const key = await this.tbsdk.reconstructKey();
-        // this.console("Correct ID for the Visa Guide Share!");
-        this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+        let requiredShares = initializedDetails.requiredShares;
+        let actualRequiredShares = 2;
+        while (requiredShares > 0 && tempSD.length > 0) {
+          let currentPriority = tempSD.shift();
+          if (currentPriority.module === "webStorage") {
+            try {
+              await this.tbsdk.modules.webStorage.inputShareFromWebStorage();
+              console.log("Getting Device Storage Share...");
+              requiredShares--;
+              actualRequiredShares--;
+            } catch (err) {
+              this.console("Couldn't Find The Device Share");
+              console.log("Couldn't Find The Device Share");
+              console.log(initializedDetails);
+            }
+          } else if (currentPriority.module === "securityQuestions") {
+            // default to password for now
+            await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+            // requiredShares--;
+            actualRequiredShares--;
+            console.log("Logging in with Visa Guide ID...");
+            // throw "Logging in with Visa Guide...";
+          } 
+
+          if (tempSD.length === 0 && requiredShares > 0) {
+            throw "URGENT: Need to Reassign Lost Key!";
+          }
+        }
+
+        console.log(this.tbsdk);
+        console.log(initializedDetails);
+        if (actualRequiredShares != 0) {
+          throw "Not Enough Shares";
+        } else {
+          let key = await this.tbsdk.reconstructKey();
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
+        }
+        // console.log(key.privKey.toString("hex"));
+        // this.console(key);
+
+        // this.console(initializedDetails);
       } catch (error) {
-        this.console("Incorrect ID for the Visa Guide share or metadata not set");
-        console.error(error, "inputShareSeqQs() Error");
+        console.error(error, "caught");
       }
     },
     async generateNewShare() {
