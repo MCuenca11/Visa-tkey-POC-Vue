@@ -206,7 +206,6 @@ export default {
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
             console.log("Logging in with Visa Guide ID...");
-                    await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
             // throw "Logging in with Visa Guide...";
           } 
 
@@ -217,12 +216,12 @@ export default {
 
         console.log(this.tbsdk);
 
-        const key = await this.tbsdk.reconstructKey();
+        // const key = await this.tbsdk.reconstructKey();
         // await this.tbsdk._initializeNewKey(undefined, true)
         this.console("Logged In Successfully!");
         console.log(initializedDetails);
-        console.log(key.privKey.toString("hex"));
-        this.console(key);
+        // console.log(key.privKey.toString("hex"));
+        // this.console(key);
 
         // this.console(initializedDetails);
       } catch (error) {
@@ -284,12 +283,13 @@ export default {
         }
         // Added this
         await this.initTkey();
-        const res = await this.tbsdk._initializeNewKey({ initializeModules: true });
+        if (!this.mocked) await this.triggerLogin();
+        const res = await this.tbsdk._initializeNewKey();
         // End of my modification
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
-        // await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
+        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer, "What's Your Visa Guide ID?");
         // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log("New tkey Info:", res);
         this.console("Successfully Initialized Visa Guide ID Share + Device Share + Provider Share! New tkey Info: " + JSON.stringify(res));
@@ -370,11 +370,13 @@ export default {
         console.log(this.tbsdk.getKeyDetails());
         console.log("step 3");
         console.log(this.tbsdk.getKeyDetails());
-        // await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
         console.log("step 4");
         console.log(this.tbsdk.getKeyDetails());
-        this.console("Correct ID for the Visa Guide Share!");
         console.log(this.tbsdk.getKeyDetails());
+        const key = await this.tbsdk.reconstructKey();
+        // this.console("Correct ID for the Visa Guide Share!");
+        this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
       } catch (error) {
         this.console("Incorrect ID for the Visa Guide share or metadata not set");
         console.error(error, "inputShareSeqQs() Error");
