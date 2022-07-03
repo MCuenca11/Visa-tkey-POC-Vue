@@ -17,20 +17,21 @@
     </div>
 
     <div :style="{ marginTop: '20px' }">
-      <h4>Social Provider Logins and Details</h4>
-        <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
-        <button @click="triggerLogin">Login for Provider/Device Shares (If tkey Has Already Been Created)</button>
-      <br />
       <h4>Visa Guide Logins</h4>
       <div :style="{ margin: '20px' }">
         <input v-model="answer" placeholder="Enter Visa Guide ID" />
       </div>
         <button @click="generateNewShareWithSecurityQuestions">Initialize New tkey Using 3 Shares</button>
-        <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Get the Guide + Device Shares</button>
+        <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Login with Guide + Device Shares</button>
         <button @click="generateNewShare">Generate New Share</button>
       <br />
-      <h4>Reconstruct tkey/Get tkey Info</h4>
-        <button @click="reconstructKey">Reconstuct tkey (Don't Need Anymore?)</button>
+      <h4>Social Provider Logins and Details</h4>
+        <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
+        <button @click="triggerLogin">Recover tkey using Provider and Visa Guide ID</button>
+        <button @click="triggerLogin">Recover tkey using Provider and Device</button>
+      <br />
+      <h4>Get tkey Info</h4>
+        <!-- <button @click="reconstructKey">Reconstuct tkey (Don't Need Anymore?)</button> -->
         <button @click="getKeyDetails">Get tkey Details</button>
         <button @click="getSDKObject">Get tkey Object</button>
       <br />
