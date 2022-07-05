@@ -25,7 +25,7 @@
         <input v-model="answer2" placeholder="Enter Visa Guide ID 2" />
       </div>
         <button @click="generateNewShareWithSecurityQuestions">Initialize New tkey Using 3 Shares</button>
-        <button @click="inputShareFromSecurityQuestions">Input Your Visa Guide ID to Login with Guide + Device Shares</button>
+        <button @click="reconstructWithIDandDevice">Input Your Visa Guide ID to Login with Guide + Device Shares</button>
         <button @click="generateNewShare">Generate New Share</button>
       <br />
       <h4>Social Provider Logins and Details</h4>
@@ -282,71 +282,6 @@ export default {
         console.error(error, "triggerLogin() Error");
       }
     },
-    async recoverDeviceShare() {
-      try {
-        // const initializedDetails = await this.tbsdk.initialize();
-        // console.log(initializedDetails);
-        // // console.log(initializedDetails.shareDescriptions[2].length)
-
-        // let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
-        // Object.keys(shareDesc).map(el => {
-        //   shareDesc[el] = shareDesc[el].map(jl => {
-        //     return JSON.parse(jl);
-        //   });
-        // });
-        // console.log(shareDesc);
-        
-        await this.initTkey();
-
-        // console.log(this.tbsdk, this.tbsdk.serviceProvider, this.tbsdk.serviceProvider.__proto__ )
-        //If the service providers aren't set up then return
-        if (!this.tbsdk.serviceProvider) return;
-        // Ask for the Visa Guide ID
-        await this.tbsdk.modules.visaGuide1.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
-        // if it's not mocked then use the social providers
-        if (!this.mocked) {
-          const jwtParams = this.loginToConnectionMap[this.selectedVerifier] || {};
-          const { typeOfLogin, clientId, verifier } = this.verifierMap[this.selectedVerifier];
-          // await this.tbsdk.serviceProvider.triggerLogin({
-          //   typeOfLogin,
-          //   verifier,
-          //   clientId,
-          //   jwtParams
-          // });
-
-          await this.tbsdk.serviceProvider.triggerHybridAggregateLogin({
-            singleLogin: {
-              typeOfLogin,
-              verifier,
-              clientId,
-              jwtParams
-            },
-            aggregateLoginParams: {
-              aggregateVerifierType: "single_id_verifier",
-              verifierIdentifier: "tkey-google",
-              subVerifierDetailsArray: [
-                {
-                  clientId: "221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com",
-                  typeOfLogin: "google",
-                  verifier: "torus"
-                }
-              ]
-            }
-          });
-        }
-
-        console.log(this.tbsdk);
-
-        // console.log("Logged In Successfully!");
-        // console.log(initializedDetails);
-
-        // await this.initializeAndReconstruct();
-        // this.console("Successfully Logged In!");
-      } catch (error) {
-        this.console("Login Was Not Successful");
-        console.error(error, "recoverDeviceShare() Error");
-      }
-    },
     async generateNewShareWithSecurityQuestions() {
       try {
         // TODO: Change this.answer to be the Visa Guide ID!
@@ -365,9 +300,9 @@ export default {
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
-        await this.tbsdk.modules.visaGuide1.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID #1?");
+        await this.tbsdk.modules.visaGuide.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID #1?");
         console.log("Visa Share 1 Successful");
-        await this.tbsdk.modules.visaGuide2.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
+        await this.tbsdk.modules.socialProvider.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
         console.log("Visa Share 2 Successful");
         // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log("New tkey Info:", res);
@@ -466,7 +401,7 @@ export default {
     //     console.error(error, "inputShareSeqQs() Error");
     //   }
     // },
-    async inputShareFromSecurityQuestions() {
+    async reconstructWithIDandDevice() {
        try {
         const initializedDetails = await this.tbsdk.initialize();
         console.log(initializedDetails);
@@ -482,7 +417,7 @@ export default {
 
         // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
         // Sort the share descriptions with priority order
-        let priorityOrder = ["securityQuestions", "webStorage"];
+        let priorityOrder = ["visaGuide", "webStorage"];
 
         let tempSD = Object.values(shareDesc)
           .flatMap(x => x)
@@ -508,12 +443,80 @@ export default {
               console.log("Couldn't Find The Device Share");
               console.log(initializedDetails);
             }
-          } else if (currentPriority.module === "securityQuestions") {
+          } else if (currentPriority.module === "visaGuide") {
             // default to password for now
-            await this.tbsdk.modules.visaGuide1.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+            await this.tbsdk.modules.visaGuide.inputShareFromSecurityQuestions(this.answer1, "What's your Visa Guide ID?");
             // requiredShares--;
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID...");
+            // throw "Logging in with Visa Guide...";
+          } 
+
+          if (tempSD.length === 0 && requiredShares > 0) {
+            throw "URGENT: Need to Reassign Lost Key!";
+          }
+        }
+
+        console.log(this.tbsdk);
+        console.log(initializedDetails);
+        if (actualRequiredShares > 0) {
+          this.console('Not Enough Shares (Wrong Visa Guide ID or No Device Share Found');
+          throw "Not Enough Shares";
+        } else {
+          let key = await this.tbsdk.reconstructKey();
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
+        }
+        // console.log(key.privKey.toString("hex"));
+        // this.console(key);
+
+        // this.console(initializedDetails);
+      } catch (error) {
+        console.error(error, "caught");
+      }
+    },
+    async recoverDeviceShare() {
+       try {
+        const initializedDetails = await this.tbsdk.initialize();
+        console.log(initializedDetails);
+        // console.log(initializedDetails.shareDescriptions[2].length)
+
+        let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
+        Object.keys(shareDesc).map(el => {
+          shareDesc[el] = shareDesc[el].map(jl => {
+            return JSON.parse(jl);
+          });
+        });
+        console.log(shareDesc);
+
+        // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
+        // Sort the share descriptions with priority order
+        let priorityOrder = ["visaGuide", "socialProvider"];
+
+        let tempSD = Object.values(shareDesc)
+          .flatMap(x => x)
+          .sort((a, b) => {
+            return priorityOrder.indexOf(a.module) - priorityOrder.indexOf(b.module);
+          });
+
+        if (tempSD.length === 0 && requiredShares > 0) {
+          throw new Error("No share descriptions available. New key assign might be required or contact support");
+        }
+        let requiredShares = initializedDetails.requiredShares;
+        let actualRequiredShares = 2;
+        while (requiredShares > 0 && tempSD.length > 0) {
+          let currentPriority = tempSD.shift();
+          if (currentPriority.module === "visaGuide") {
+            await this.tbsdk.modules.visaGuide.inputShareFromSecurityQuestions(this.answer1, "What's your Visa Guide ID?");
+            // requiredShares--;
+            actualRequiredShares--;
+            console.log("Logging in with Visa Guide ID 1...");
+          } else if (currentPriority.module === "socialProvider") {
+            // default to password for now
+            await this.tbsdk.modules.socialProvider.inputShareFromSecurityQuestions(this.answer2, "What's your Visa Guide ID?");
+            requiredShares--;
+            actualRequiredShares--;
+            console.log("Logging in with Visa Guide ID 2 (aka Social Provider)...");
             // throw "Logging in with Visa Guide...";
           } 
 
@@ -578,10 +581,10 @@ export default {
       const webStorageModule = new WebStorageModule();
       // const securityQuestionsModule = new SecurityQuestionsModule();
 
-      const visaGuide1 = new SecurityQuestionsModule();
-      visaGuide1.moduleName = "visaGuide1";
-      const visaGuide2 = new SecurityQuestionsModule();
-      visaGuide2.moduleName = "visaGuide2";
+      const visaGuide = new SecurityQuestionsModule();
+      visaGuide.moduleName = "visaGuide";
+      const socialProvider = new SecurityQuestionsModule();
+      socialProvider.moduleName = "socialProvider";
       const shareTransferModule = new ShareTransferModule();
 
       let serviceProvider;
@@ -594,7 +597,7 @@ export default {
       const tbsdk = new ThresholdKey({
         serviceProvider: serviceProvider,
         storageLayer,
-        modules: { webStorage: webStorageModule, visaGuide1: visaGuide1, visaGuide2: visaGuide2, shareTransfer: shareTransferModule }
+        modules: { webStorage: webStorageModule, visaGuide: visaGuide, socialProvider: socialProvider, shareTransfer: shareTransferModule }
       });
       this.tbsdk = tbsdk;
       this.torusdirectsdk = tbsdk.serviceProvider;
