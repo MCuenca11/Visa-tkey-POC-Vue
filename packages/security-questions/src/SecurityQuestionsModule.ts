@@ -71,15 +71,13 @@ class SecurityQuestionsModule implements IModule {
   async initialize(): Promise<void> {}
 
   async generateNewShareWithSecurityQuestions(answerString: string, questions: string): Promise<GenerateNewShareResult> {
-    // Get the metadata
     const metadata = this.tbSDK.getMetadata();
-    // Get the general store from the data
     const rawSqStore = metadata.getGeneralStoreDomain(this.moduleName);
-    // If there was already a store in the metadata then throw an error?
+    
     if (rawSqStore) throw SecurityQuestionsError.unableToReplace();
+
     const newSharesDetails = await this.tbSDK.generateNewShare();
     const newShareStore = newSharesDetails.newShareStores[newSharesDetails.newShareIndex.toString("hex")];
-    // Encode the answer/Visa Guide ID
     const userInputHash = answerToUserInputHashBN(answerString);
     let nonce = newShareStore.share.share.sub(userInputHash);
     nonce = nonce.umod(ecCurve.curve.n);
@@ -102,6 +100,7 @@ class SecurityQuestionsModule implements IModule {
     await this.tbSDK._syncShareMetadata();
     return newSharesDetails;
   }
+  
 
   getSecurityQuestions(): string {
     const metadata = this.tbSDK.getMetadata();

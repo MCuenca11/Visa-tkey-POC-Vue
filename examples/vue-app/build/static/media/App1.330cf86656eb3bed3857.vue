@@ -302,7 +302,7 @@ export default {
         //If the service providers aren't set up then return
         if (!this.tbsdk.serviceProvider) return;
         // Ask for the Visa Guide ID
-        await this.tbsdk.modules.visaGuide1.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
         // if it's not mocked then use the social providers
         if (!this.mocked) {
           const jwtParams = this.loginToConnectionMap[this.selectedVerifier] || {};
@@ -365,9 +365,9 @@ export default {
 
         // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
-        await this.tbsdk.modules.visaGuide1.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID #1?");
+        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID #1?");
         console.log("Visa Share 1 Successful");
-        await this.tbsdk.modules.visaGuide2.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
+        await this.tbsdk.modules.securityQuestions.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
         console.log("Visa Share 2 Successful");
         // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log("New tkey Info:", res);
@@ -510,7 +510,7 @@ export default {
             }
           } else if (currentPriority.module === "securityQuestions") {
             // default to password for now
-            await this.tbsdk.modules.visaGuide1.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+            await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
             // requiredShares--;
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID...");
@@ -576,12 +576,7 @@ export default {
         network: "testnet" // details for test net
       };
       const webStorageModule = new WebStorageModule();
-      // const securityQuestionsModule = new SecurityQuestionsModule();
-
-      const visaGuide1 = new SecurityQuestionsModule();
-      visaGuide1.moduleName = "visaGuide1";
-      const visaGuide2 = new SecurityQuestionsModule();
-      visaGuide2.moduleName = "visaGuide2";
+      const securityQuestionsModule = new SecurityQuestionsModule();
       const shareTransferModule = new ShareTransferModule();
 
       let serviceProvider;
@@ -594,7 +589,7 @@ export default {
       const tbsdk = new ThresholdKey({
         serviceProvider: serviceProvider,
         storageLayer,
-        modules: { webStorage: webStorageModule, visaGuide1: visaGuide1, visaGuide2: visaGuide2, shareTransfer: shareTransferModule }
+        modules: { webStorage: webStorageModule, securityQuestions: securityQuestionsModule, shareTransfer: shareTransferModule }
       });
       this.tbsdk = tbsdk;
       this.torusdirectsdk = tbsdk.serviceProvider;

@@ -1,11 +1,11 @@
 {
   "files": {
-    "main.js": "/static/js/main.3fb02cc6.js",
-    "static/media/App2.vue": "/static/media/App2.76803bdfa4cd6f36e9a0.vue",
+    "main.js": "/static/js/main.33bd350d.js",
+    "static/media/App1.vue": "/static/media/App1.330cf86656eb3bed3857.vue",
     "index.html": "/index.html",
-    "main.3fb02cc6.js.map": "/static/js/main.3fb02cc6.js.map"
+    "main.33bd350d.js.map": "/static/js/main.33bd350d.js.map"
   },
   "entrypoints": [
-    "static/js/main.3fb02cc6.js"
+    "static/js/main.33bd350d.js"
   ]
 }
