@@ -19,10 +19,10 @@
     <div :style="{ marginTop: '20px' }">
       <h4>Visa Guide Logins</h4>
       <div :style="{ margin: '20px' }">
-        <input v-model="answer1" placeholder="Enter Visa Guide ID 1" />
+        <input v-model="answer1" placeholder="Enter Visa Guide ID" />
       </div>
       <div :style="{ margin: '20px' }">
-        <input v-model="answer2" placeholder="Enter Visa Guide ID 2" />
+        <input v-model="answer2" placeholder="Enter Provider ID" />
       </div>
         <button @click="generateNewShareWithSecurityQuestions">Initialize New tkey Using 3 Shares</button>
         <button @click="reconstructWithIDandDevice">Input Your Visa Guide ID to Login with Guide + Device Shares</button>
@@ -44,6 +44,9 @@
         <button @click="approveShareRequest">Approve Request</button>
         <button @click="resetShareRequests">Reset Share Request Store</button>
     </div>
+      <a target="_blank" href="https://github.com/MCuenca11/tkey-for-POC" rel="noreferrer">
+            Click Here to Access the Source Code
+      </a>
     <div id="console">
       <p></p>
     </div>
