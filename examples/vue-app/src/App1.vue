@@ -2,7 +2,7 @@
   <div id="app">
     <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more detailed info.</p>
     <div>
-      <span :style="{ marginRight: '20px' }">To Begin Select Social Provider and Create New tkey to Login. (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
+      <span :style="{ marginRight: '20px' }">To Begin Select Social Provider (Or Select Mocked Login) and Create New tkey to Login. (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
       <select v-model="selectedVerifier">
         <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
       </select>
@@ -27,7 +27,7 @@
       <br />
       <h4>Social Provider Logins and Details</h4>
         <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
-        <button @click="triggerLogin">Recover tkey using Provider and Visa Guide ID</button>
+        <button @click="recoverDeviceShare">Recover tkey using Provider and Visa Guide ID</button>
         <button @click="triggerLogin">Recover tkey using Provider and Device</button>
       <br />
       <h4>Get tkey Info</h4>
@@ -145,7 +145,7 @@ export default {
       };
     }
   },
-  //##############################################################
+
   methods: {
     getKeyDetails() {
       console.log(this.tbsdk.getKeyDetails());
@@ -276,6 +276,66 @@ export default {
       } catch (error) {
         this.console("Login Was Not Successful");
         console.error(error, "triggerLogin() Error");
+      }
+    },
+    async recoverDeviceShare() {
+      try {
+        // const initializedDetails = await this.tbsdk.initialize();
+        // console.log(initializedDetails);
+        // // console.log(initializedDetails.shareDescriptions[2].length)
+
+        // let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
+        // Object.keys(shareDesc).map(el => {
+        //   shareDesc[el] = shareDesc[el].map(jl => {
+        //     return JSON.parse(jl);
+        //   });
+        // });
+        // console.log(shareDesc);
+        
+        await this.initTkey();
+
+        // console.log(this.tbsdk, this.tbsdk.serviceProvider, this.tbsdk.serviceProvider.__proto__ )
+        //If the service providers aren't set up then return
+        if (!this.tbsdk.serviceProvider) return;
+        // Ask for the Visa Guide ID
+        await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
+        // if it's not mocked then use the social providers
+        if (!this.mocked) {
+          const jwtParams = this.loginToConnectionMap[this.selectedVerifier] || {};
+          const { typeOfLogin, clientId, verifier } = this.verifierMap[this.selectedVerifier];
+          // await this.tbsdk.serviceProvider.triggerLogin({
+          //   typeOfLogin,
+          //   verifier,
+          //   clientId,
+          //   jwtParams
+          // });
+
+          await this.tbsdk.serviceProvider.triggerHybridAggregateLogin({
+            singleLogin: {
+              typeOfLogin,
+              verifier,
+              clientId,
+              jwtParams
+            },
+            aggregateLoginParams: {
+              aggregateVerifierType: "single_id_verifier",
+              verifierIdentifier: "tkey-google",
+              subVerifierDetailsArray: [
+                {
+                  clientId: "221898609709-obfn3p63741l5333093430j3qeiinaa8.apps.googleusercontent.com",
+                  typeOfLogin: "google",
+                  verifier: "torus"
+                }
+              ]
+            }
+          });
+        }
+
+        await this.initializeAndReconstruct();
+        this.console("Successfully Logged In!");
+      } catch (error) {
+        this.console("Login Was Not Successful");
+        console.error(error, "recoverDeviceShare() Error");
       }
     },
     async generateNewShareWithSecurityQuestions() {
@@ -525,7 +585,7 @@ export default {
       document.querySelector("#console>p").innerHTML = typeof text === "object" ? JSON.stringify(text) : text;
     }
   },
-  //##############################################################
+
   async mounted() {
     try {
       await this.initTkey();
