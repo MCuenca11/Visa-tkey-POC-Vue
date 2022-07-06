@@ -3,10 +3,10 @@
     <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more detailed info.</p>
     <div>
       <span :style="{ marginRight: '20px' }">To Begin Select Social Provider (Or Select Mocked Login) and Initialize New tkey to Login. (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
-      <select v-model="selectedVerifier">
-        <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
-      </select>
     </div>
+    <select v-model="selectedVerifier">
+      <option :key="login" v-for="login in Object.keys(verifierMap)" :value="login">{{ verifierMap[login].name }}</option>
+    </select>
     <div :style="{ marginTop: '20px' }" v-if="selectedVerifier === 'passwordless'">
       <input type="email" v-model="loginHint" placeholder="Enter your email" />
     </div>
@@ -31,7 +31,7 @@
       <h4>Social Provider Logins and Details</h4>
         <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
         <button @click="recoverDeviceShare">Recover tkey using Provider and Visa Guide ID</button>
-        <button @click="triggerLogin">Recover tkey using Provider and Device</button>
+        <button @click="triggerLogin">Recover tkey using Provider and Device (Need to Modify This for Provider ID)</button>
       <br />
       <h4>Get tkey Info</h4>
         <!-- <button @click="reconstructKey">Reconstuct tkey (Don't Need Anymore?)</button> -->
@@ -61,8 +61,6 @@ import ServiceProviderBase from "@tkey/service-provider-base";
 import WebStorageModule from "@tkey/web-storage";
 import SecurityQuestionsModule from "@tkey/security-questions";
 import ShareTransferModule from "@tkey/share-transfer";
-
-// import ServiceProviderBase from '../../../src/serviceProvider/ServiceProviderBase';
 
 const GOOGLE = "google";
 const FACEBOOK = "facebook";
@@ -178,7 +176,6 @@ export default {
       try {
         const initializedDetails = await this.tbsdk.initialize();
         console.log(initializedDetails);
-        // console.log(initializedDetails.shareDescriptions[2].length)
 
         let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
         Object.keys(shareDesc).map(el => {
@@ -307,7 +304,6 @@ export default {
         console.log("Visa Share 1 Successful");
         await this.tbsdk.modules.socialProvider.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
         console.log("Visa Share 2 Successful");
-        // this.console("Successfully Initialized Share With Visa Guide ID!");
         console.log("New tkey Info:", res);
         this.console("Successfully Initialized Visa Guide ID Share + Device Share + Provider Share! New tkey Info: " + JSON.stringify(res));
         console.log(this.tbsdk.getKeyDetails());
@@ -348,7 +344,6 @@ export default {
         console.log(result, requests, this.tbsdk);
 
         await this.tbsdk.modules.shareTransfer.approveRequest(requests[0], shareToShare);
-        // await this.tbsdk.modules.shareTransfer.deleteShareTransferStore(requests[0]) // delete old share requests
         this.console("approved");
       } catch (err) {
         console.error(err);
@@ -376,39 +371,10 @@ export default {
         console.error(error, "reconstructKey() Error");
       }
     },
-    // async inputShareFromSecurityQuestions() {
-    //   try {
-    //     // Added this
-    //     await this.initTkey();
-    //     console.log("step 1");
-    //     // End
-    //     if (!this.passwordValidation(this.answer)) {
-    //       this.console("Minimum length 5 characters");
-    //       throw "Minimum length 5 characters";
-    //     }
-    //     console.log("step 2");
-    //     // Added this
-    //     await this.initializeAndReconstruct();
-    //     console.log("Back to Input Share...");
-    //     console.log(this.tbsdk.getKeyDetails());
-    //     console.log("step 3");
-    //     console.log(this.tbsdk.getKeyDetails());
-    //     await this.tbsdk.modules.securityQuestions.inputShareFromSecurityQuestions(this.answer, "What's your Visa Guide ID?");
-    //     console.log("step 4");
-    //     console.log(this.tbsdk.getKeyDetails());
-    //     const key = await this.tbsdk.reconstructKey();
-    //     // this.console("Correct ID for the Visa Guide Share!");
-    //     this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
-    //   } catch (error) {
-    //     this.console("Incorrect ID for the Visa Guide share or metadata not set");
-    //     console.error(error, "inputShareSeqQs() Error");
-    //   }
-    // },
     async reconstructWithIDandDevice() {
        try {
         const initializedDetails = await this.tbsdk.initialize();
         console.log(initializedDetails);
-        // console.log(initializedDetails.shareDescriptions[2].length)
 
         let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
         Object.keys(shareDesc).map(el => {
@@ -449,10 +415,8 @@ export default {
           } else if (currentPriority.module === "visaGuide") {
             // default to password for now
             await this.tbsdk.modules.visaGuide.inputShareFromSecurityQuestions(this.answer1, "What's your Visa Guide ID?");
-            // requiredShares--;
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID...");
-            // throw "Logging in with Visa Guide...";
           } 
 
           if (tempSD.length === 0 && requiredShares > 0) {
@@ -470,10 +434,6 @@ export default {
           this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
           console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
         }
-        // console.log(key.privKey.toString("hex"));
-        // this.console(key);
-
-        // this.console(initializedDetails);
       } catch (error) {
         console.error(error, "caught");
       }
@@ -482,7 +442,6 @@ export default {
        try {
         const initializedDetails = await this.tbsdk.initialize();
         console.log(initializedDetails);
-        // console.log(initializedDetails.shareDescriptions[2].length)
 
         let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
         Object.keys(shareDesc).map(el => {
@@ -511,7 +470,6 @@ export default {
           let currentPriority = tempSD.shift();
           if (currentPriority.module === "visaGuide") {
             await this.tbsdk.modules.visaGuide.inputShareFromSecurityQuestions(this.answer1, "What's your Visa Guide ID?");
-            // requiredShares--;
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID 1...");
           } else if (currentPriority.module === "socialProvider") {
@@ -520,7 +478,6 @@ export default {
             requiredShares--;
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID 2 (aka Social Provider)...");
-            // throw "Logging in with Visa Guide...";
           } 
 
           if (tempSD.length === 0 && requiredShares > 0) {
@@ -538,10 +495,6 @@ export default {
           this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
           console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
         }
-        // console.log(key.privKey.toString("hex"));
-        // this.console(key);
-
-        // this.console(initializedDetails);
       } catch (error) {
         console.error(error, "caught");
       }
@@ -549,14 +502,6 @@ export default {
     async generateNewShare() {
       try {
         const res = await this.tbsdk.generateNewShare();
-        // // ######## Trying to increase the threshold #########
-        // const pubPoly = this.metadata.getLatestPublicPolynomial();
-        // const prevPolyID = pubPoly.getPolynomialID();
-        // const existingShareIndexes = this.metadata.getShareIndexesForPolynomial(prevPolyID);
-
-        // this.console(existingShareIndexes);
-
-        // // #### Continue #######
         console.log(res);
         this.console("New Share Info: " + JSON.stringify(res));
       } catch (error) {
@@ -582,8 +527,6 @@ export default {
         network: "testnet" // details for test net
       };
       const webStorageModule = new WebStorageModule();
-      // const securityQuestionsModule = new SecurityQuestionsModule();
-
       const visaGuide = new SecurityQuestionsModule();
       visaGuide.moduleName = "visaGuide";
       const socialProvider = new SecurityQuestionsModule();
