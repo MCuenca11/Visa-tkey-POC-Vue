@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <p class="font-italic">Note: This is a testing application for integrating tkey with Visa Guide. Please open console for more detailed info.</p>
+    <p class="font-italic">This is a POC for integrating tkey with Visa Guide. Please open console for more detailed info.</p>
     <div>
       <span :style="{ marginRight: '20px' }">To Begin Select Social Provider (Or Select Mocked Login) and Initialize New tkey to Login. (After tkey Has Been Created, You Can Login Directly With Login Button):</span>
     </div>
@@ -17,7 +17,7 @@
     </div>
 
     <div :style="{ marginTop: '20px' }">
-      <h4>Visa Guide Logins</h4>
+      <h4>tKey Init and Login</h4>
       <div :style="{ margin: '20px' }">
         <input v-model="answer1" placeholder="Enter Visa Guide ID" />
       </div>
@@ -28,8 +28,8 @@
         <button @click="reconstructWithIDandDevice">Input Your Visa Guide ID to Login with Guide + Device Shares</button>
         <button @click="generateNewShare">Generate New Share</button>
       <br />
-      <h4>Social Provider Logins and Details</h4>
-        <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
+      <h4>Lost Share Recovery Using Social Provider</h4>
+        <!-- <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button> -->
         <button @click="recoverDeviceShare">Recover tkey using Provider and Visa Guide ID</button>
         <button @click="reconstructWithProviderAndDevice">Recover tkey using Provider and Device</button>
       <br />
@@ -293,7 +293,6 @@ export default {
           throw "Visa Guide ID Can't Be Less Than 5 Characters";
         }
         await this.initTkey();
-        if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey();
 
         // This calls the function in the Security Questions Module
@@ -427,7 +426,7 @@ export default {
           throw "Not Enough Shares";
         } else {
           let key = await this.tbsdk.reconstructKey();
-          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key) + "       Here's The Information For The Shares:    " + JSON.stringify(shareDesc));
           console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
         }
       } catch (error) {
@@ -493,7 +492,7 @@ export default {
           throw "Not Enough Shares";
         } else {
           let key = await this.tbsdk.reconstructKey();
-          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key) + " Here's The Information For The Shares: " + JSON.stringify(shareDesc));
           console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
         }
       } catch (error) {
@@ -553,7 +552,7 @@ export default {
           throw "Not Enough Shares";
         } else {
           let key = await this.tbsdk.reconstructKey();
-          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key) + " Here's The Information For The Shares: " + JSON.stringify(shareDesc));
           console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
         }
       } catch (error) {
