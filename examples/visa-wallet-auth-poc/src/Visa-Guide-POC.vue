@@ -31,7 +31,7 @@
       <h4>Social Provider Logins and Details</h4>
         <button @click="_initializeNewKey">Create New tkey Using Social Provider/Device</button>
         <button @click="recoverDeviceShare">Recover tkey using Provider and Visa Guide ID</button>
-        <button @click="triggerLogin">Recover tkey using Provider and Device (Need to Modify This for Provider ID)</button>
+        <button @click="reconstructWithProviderAndDevice">Recover tkey using Provider and Device</button>
       <br />
       <h4>Get tkey Info</h4>
         <!-- <button @click="reconstructKey">Reconstuct tkey (Don't Need Anymore?)</button> -->
@@ -241,7 +241,7 @@ export default {
         await this.initTkey();
 
         // console.log(this.tbsdk, this.tbsdk.serviceProvider, this.tbsdk.serviceProvider.__proto__ )
-        //If the service providers aren't set up then return
+        // If the service providers aren't set up then return
         if (!this.tbsdk.serviceProvider) return;
         // if it's not mocked then use the social providers
         if (!this.mocked) {
@@ -284,7 +284,6 @@ export default {
     },
     async generateNewShareWithSecurityQuestions() {
       try {
-        // TODO: Change this.answer to be the Visa Guide ID!
         if (!this.passwordValidation(this.answer1)) {
           this.console("Visa Guide ID Can't Be Less Than 5 Characters");
           throw "Visa Guide ID Can't Be Less Than 5 Characters";
@@ -293,17 +292,15 @@ export default {
           this.console("Visa Guide ID Can't Be Less Than 5 Characters");
           throw "Visa Guide ID Can't Be Less Than 5 Characters";
         }
-        // Added this
         await this.initTkey();
         if (!this.mocked) await this.triggerLogin();
         const res = await this.tbsdk._initializeNewKey();
 
-        // TODO: Change this.answer to be the Visa Guide ID!
         // This calls the function in the Security Questions Module
-        await this.tbsdk.modules.visaGuide.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID #1?");
-        console.log("Visa Share 1 Successful");
-        await this.tbsdk.modules.socialProvider.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Visa Guide ID #2?");
-        console.log("Visa Share 2 Successful");
+        await this.tbsdk.modules.visaGuide.generateNewShareWithSecurityQuestions(this.answer1, "What's Your Visa Guide ID?");
+        console.log("Visa Share Successful");
+        await this.tbsdk.modules.socialProvider.generateNewShareWithSecurityQuestions(this.answer2, "What's Your Social Provider ID?");
+        console.log("Social Provider Share Successful");
         console.log("New tkey Info:", res);
         this.console("Successfully Initialized Visa Guide ID Share + Device Share + Provider Share! New tkey Info: " + JSON.stringify(res));
         console.log(this.tbsdk.getKeyDetails());
@@ -413,10 +410,75 @@ export default {
               console.log(initializedDetails);
             }
           } else if (currentPriority.module === "visaGuide") {
-            // default to password for now
             await this.tbsdk.modules.visaGuide.inputShareFromSecurityQuestions(this.answer1, "What's your Visa Guide ID?");
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID...");
+          } 
+
+          if (tempSD.length === 0 && requiredShares > 0) {
+            throw "URGENT: Need to Reassign Lost Key!";
+          }
+        }
+
+        console.log(this.tbsdk);
+        console.log(initializedDetails);
+        if (actualRequiredShares > 0) {
+          this.console('Not Enough Shares (Wrong Visa Guide ID or No Device Share Found');
+          throw "Not Enough Shares";
+        } else {
+          let key = await this.tbsdk.reconstructKey();
+          this.console("Logged In Successfully! Here's Your Private Key: " + JSON.stringify(key));
+          console.log(JSON.stringify(key), this.tbsdk.getKeyDetails());
+        }
+      } catch (error) {
+        console.error(error, "caught");
+      }
+    },
+    async reconstructWithProviderAndDevice() {
+       try {
+        const initializedDetails = await this.tbsdk.initialize();
+        console.log(initializedDetails);
+
+        let shareDesc = Object.assign({}, initializedDetails.shareDescriptions);
+        Object.keys(shareDesc).map(el => {
+          shareDesc[el] = shareDesc[el].map(jl => {
+            return JSON.parse(jl);
+          });
+        });
+        console.log(shareDesc);
+
+        // Check different types of shares from metadata. This helps in making UI decisions (About what kind of shares to ask from users)
+        // Sort the share descriptions with priority order
+        let priorityOrder = ["socialProvider", "webStorage"];
+
+        let tempSD = Object.values(shareDesc)
+          .flatMap(x => x)
+          .sort((a, b) => {
+            return priorityOrder.indexOf(a.module) - priorityOrder.indexOf(b.module);
+          });
+
+        if (tempSD.length === 0 && requiredShares > 0) {
+          throw new Error("No share descriptions available. New key assign might be required or contact support");
+        }
+        let requiredShares = initializedDetails.requiredShares;
+        let actualRequiredShares = 2;
+        while (requiredShares > 0 && tempSD.length > 0) {
+          let currentPriority = tempSD.shift();
+          if (currentPriority.module === "webStorage") {
+            try {
+              await this.tbsdk.modules.webStorage.inputShareFromWebStorage();
+              console.log("Getting Device Storage Share...");
+              requiredShares--;
+              actualRequiredShares--;
+            } catch (err) {
+              this.console("Couldn't Find The Device Share");
+              console.log("Couldn't Find The Device Share");
+              console.log(initializedDetails);
+            }
+          } else if (currentPriority.module === "socialProvider") {
+            await this.tbsdk.modules.socialProvider.inputShareFromSecurityQuestions(this.answer2, "What's your Social Provider ID?");
+            actualRequiredShares--;
+            console.log("Logging in with Social Provider ID...");
           } 
 
           if (tempSD.length === 0 && requiredShares > 0) {
@@ -473,7 +535,6 @@ export default {
             actualRequiredShares--;
             console.log("Logging in with Visa Guide ID 1...");
           } else if (currentPriority.module === "socialProvider") {
-            // default to password for now
             await this.tbsdk.modules.socialProvider.inputShareFromSecurityQuestions(this.answer2, "What's your Visa Guide ID?");
             requiredShares--;
             actualRequiredShares--;
