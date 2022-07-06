@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-import App from "./App1.vue";
+import App from "./Visa-Guide-POC.vue";
 
 Vue.config.productionTip = false;
 
